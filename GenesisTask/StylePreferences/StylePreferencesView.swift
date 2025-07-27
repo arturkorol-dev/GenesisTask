@@ -41,7 +41,9 @@ struct StylePreferencesView: View {
                     send: StylePreferencesDomain.Action.navigationDismissed
                 )
             ) {
-                Text("Next")
+                FavouriteColorsView(store: .init(initialState: .init(), reducer: {
+                    FavouriteColorsDomain()
+                }))
             }
         }
     }

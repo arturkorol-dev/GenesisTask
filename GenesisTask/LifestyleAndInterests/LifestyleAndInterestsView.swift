@@ -37,7 +37,9 @@ struct LifestyleAndInterestsView: View {
                     send: LifestyleAndInterestsDomain.Action.navigationDismissed
                 )
             ) {
-                Text("Next")
+                StylePreferencesView(store: .init(initialState: .init(), reducer: {
+                    StylePreferencesDomain()
+                }))
             }
         }
     }
