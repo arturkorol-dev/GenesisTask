@@ -26,9 +26,13 @@ struct LifestyleAndInterestsDomain {
         case continueTapped
         case alertDismissed
         case navigationDismissed
+        case restoreSavedAnswers
     }
 
     @Dependency(\.quizClient) var quizClient
+    @Dependency(\.userDefaults) var userDefaults
+
+    private let userDefaultsKey = "lifestyleAnswers"
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -38,11 +42,10 @@ struct LifestyleAndInterestsDomain {
                 return .run { send in
                     await send(
                         .fetchQuestionsResponse(
-                            TaskResult {
-                                try await quizClient.fetchLifestyleOptions()
-                            }
+                            TaskResult { try await quizClient.fetchLifestyleOptions() }
                         )
                     )
+                    await send(.restoreSavedAnswers)
                 }
             case let .fetchQuestionsResponse(.success(options)):
                 state.isLoading = false
@@ -59,10 +62,14 @@ struct LifestyleAndInterestsDomain {
                 return .none
             case .continueTapped:
                 if state.options.contains(where: { $0.isSelected }) {
+                    saveSelectedOptions(state.options)
                     state.isNextViewPresented = true
                 } else {
                     state.showAlert = true
                 }
+                return .none
+            case .restoreSavedAnswers:
+                restoreSelectedOptions(&state)
                 return .none
             case .alertDismissed:
                 state.showAlert = false
@@ -71,6 +78,24 @@ struct LifestyleAndInterestsDomain {
                 state.isNextViewPresented = false
                 return .none
             }
+        }
+    }
+
+    // MARK: - Private Helpers
+
+    private func saveSelectedOptions(_ options: [LifestyleAndInterestsQuestion]) {
+        let selected = options.filter { $0.isSelected }.map { $0.title }
+        if let data = try? JSONEncoder().encode(selected) {
+            userDefaults.save(userDefaultsKey, data)
+        }
+    }
+
+    private func restoreSelectedOptions(_ state: inout State) {
+        guard let data = userDefaults.load(userDefaultsKey),
+              let saved = try? JSONDecoder().decode([String].self, from: data) else { return }
+
+        for i in state.options.indices {
+            state.options[i].isSelected = saved.contains(state.options[i].title)
         }
     }
 }
