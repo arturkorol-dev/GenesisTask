@@ -13,10 +13,21 @@ struct LifestyleAndInterestsView: View {
 
     var body: some View {
         WithViewStore(self.store, observe: { $0 }) { viewStore in
-            VStack(spacing: 24) {
-                title
-                questions(viewStore: viewStore)
-                continueButton(viewStore: viewStore)
+            Group {
+                if viewStore.isLoading {
+                    LoadingView()
+                } else if let error = viewStore.errorMessage {
+                    ErrorView(error: error) {
+                        viewStore.send(.onAppear)
+                    }
+                } else {
+                    VStack(spacing: 24) {
+                        title
+                        questions(viewStore: viewStore)
+                        continueButton(viewStore: viewStore)
+                    }
+                    .padding()
+                }
             }
             .navigationTitle("LIFESTYLE & INTERESTS")
             .navigationBarTitleDisplayMode(.inline)
@@ -30,16 +41,23 @@ struct LifestyleAndInterestsView: View {
             ) {
                 Button("OK", role: .cancel) {}
             }
-            .padding()
             .navigationDestination(
                 isPresented: viewStore.binding(
                     get: \.isNextViewPresented,
                     send: LifestyleAndInterestsDomain.Action.navigationDismissed
                 )
             ) {
-                StylePreferencesView(store: .init(initialState: .init(), reducer: {
-                    StylePreferencesDomain()
-                }))
+                WithPerceptionTracking {
+                    StylePreferencesView(
+                        store: .init(
+                            initialState: .init(),
+                            reducer: { StylePreferencesDomain() }
+                        )
+                    )
+                }
+            }
+            .onAppear {
+                viewStore.send(.onAppear)
             }
         }
     }
@@ -73,31 +91,33 @@ private extension LifestyleAndInterestsView {
         viewStore: ViewStore<LifestyleAndInterestsDomain.State, LifestyleAndInterestsDomain.Action>
     ) -> some View {
         ScrollView {
-            LazyVStack(spacing: 12) {
-                ForEach(viewStore.options) { option in
-                    Button {
-                        viewStore.send(.toggleOption(option.id))
-                    } label: {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(option.title)
-                                    .font(.headline)
-                                    .foregroundColor(.black)
-                                Text(option.subtitle)
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
+            WithPerceptionTracking {
+                LazyVStack(spacing: 12) {
+                    ForEach(viewStore.options) { option in
+                        Button {
+                            viewStore.send(.toggleOption(option.id))
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(option.title)
+                                        .font(.headline)
+                                        .foregroundColor(.black)
+                                    Text(option.subtitle)
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                }
+                                Spacer()
+                                Image(systemName: option.isSelected ? "checkmark.square.fill" : "square")
+                                    .resizable()
+                                    .frame(width: 24, height: 24)
+                                    .foregroundColor(option.isSelected ? .black : .gray)
                             }
-                            Spacer()
-                            Image(systemName: option.isSelected ? "checkmark.square.fill" : "square")
-                                .resizable()
-                                .frame(width: 24, height: 24)
-                                .foregroundColor(option.isSelected ? .black : .gray)
+                            .padding()
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                            )
                         }
-                        .padding()
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                        )
                     }
                 }
             }
