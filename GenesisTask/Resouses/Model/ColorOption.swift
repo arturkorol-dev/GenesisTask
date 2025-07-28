@@ -7,12 +7,19 @@
 
 import Foundation
 
-struct ColorOption: Equatable, Identifiable {
+struct ColorOption: Decodable, Equatable, Identifiable {
     let id = UUID()
     var title: String
     var colorHex: String
     var isSelected: Bool = false
 
+    enum CodingKeys: String, CodingKey {
+        case title
+        case colorHex
+    }
+}
+
+extension ColorOption {
     static let mock: [ColorOption] = [
         .init(title: "LIGHT BLUE", colorHex: "#ADD8E6"),
         .init(title: "BLUE", colorHex: "#0000FF"),
@@ -33,4 +40,8 @@ struct ColorOption: Equatable, Identifiable {
         .init(title: "LIME", colorHex: "#00FF00"),
         .init(title: "CYAN", colorHex: "#00FFFF")
     ]
+}
+
+struct ColorQuestions: Decodable {
+    var options: [ColorOption]
 }

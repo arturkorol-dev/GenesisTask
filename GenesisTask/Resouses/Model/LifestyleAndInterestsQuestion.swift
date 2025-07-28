@@ -7,11 +7,16 @@
 
 import Foundation
 
-struct LifestyleAndInterestsQuestion: Equatable, Identifiable {
-    let id = UUID()
+struct LifestyleAndInterestsQuestion: Decodable, Equatable, Identifiable {
+    var id = UUID()
     var title: String
     var subtitle: String
     var isSelected: Bool = false
+
+    private enum CodingKeys: String, CodingKey {
+        case title
+        case subtitle
+    }
 }
 
 extension LifestyleAndInterestsQuestion {
@@ -22,4 +27,9 @@ extension LifestyleAndInterestsQuestion {
         .init(title: "DEFINE MY STYLE", subtitle: "to discover my signature look"),
         .init(title: "CREATE AN OUTFIT FOR AN EVENT", subtitle: "to own a spotlight wherever you go")
     ]
+}
+
+struct LifestyleAndInterestsQuestions: Decodable {
+    var id: String
+    var options: [LifestyleAndInterestsQuestion]
 }
