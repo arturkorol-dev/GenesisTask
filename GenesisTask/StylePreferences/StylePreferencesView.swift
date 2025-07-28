@@ -10,22 +10,32 @@ import ComposableArchitecture
 
 struct StylePreferencesView: View {
     let store: StoreOf<StylePreferencesDomain>
-
+    
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: 16),
         count: 2
     )
-
+    
     var body: some View {
         WithViewStore(self.store, observe: { $0 }) { viewStore in
-            VStack(alignment: .leading, spacing: 20) {
-                title
-                options(viewStore: viewStore)
-                continueButton(viewStore: viewStore)
+            Group {
+                if viewStore.isLoading {
+                    LoadingView()
+                } else if let error = viewStore.errorMessage {
+                    ErrorView(error: error) {
+                        viewStore.send(.onAppear)
+                    }
+                } else {
+                    VStack(alignment: .leading, spacing: 20) {
+                        title
+                        options(viewStore: viewStore)
+                        continueButton(viewStore: viewStore)
+                    }
+                    .padding()
+                }
             }
             .navigationTitle("Style preferences")
             .navigationBarTitleDisplayMode(.inline)
-            .padding()
             .alert(
                 "Please select one option.",
                 isPresented: viewStore.binding(
@@ -41,9 +51,14 @@ struct StylePreferencesView: View {
                     send: StylePreferencesDomain.Action.navigationDismissed
                 )
             ) {
-                FavouriteColorsView(store: .init(initialState: .init(), reducer: {
-                    FavouriteColorsDomain()
-                }))
+                WithPerceptionTracking {
+                    FavouriteColorsView(store: .init(initialState: .init(), reducer: {
+                        FavouriteColorsDomain()
+                    }))
+                }
+            }
+            .onAppear {
+                viewStore.send(.onAppear)
             }
         }
     }
@@ -67,46 +82,60 @@ private extension StylePreferencesView {
             .fontWeight(.medium)
             .multilineTextAlignment(.leading)
     }
-
+    
     func options(
         viewStore: ViewStoreOf<StylePreferencesDomain>
     ) -> some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(viewStore.options) { option in
-                    Button {
-                        viewStore.send(.selectOption(option.id))
-                    } label: {
-                        VStack(spacing: 4) {
-                            Image(option.image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 108, height: 122)
-
-                            Text(option.title)
-                                .font(.body)
-                                .foregroundColor(.black)
+            WithPerceptionTracking {
+                LazyVGrid(columns: columns, spacing: 16) {
+                    ForEach(viewStore.options) { option in
+                        Button {
+                            viewStore.send(.selectOption(option.id))
+                        } label: {
+                            VStack(spacing: 4) {
+                                if let imageUrl = option.imageUrl {
+                                    AsyncImage(url: imageUrl) { image in
+                                        image.resizable()
+                                            .scaledToFill()
+                                            .frame(width: 108, height: 122)
+                                            .clipped()
+                                    } placeholder: {
+                                        ProgressView()
+                                            .frame(width: 108, height: 122)
+                                    }
+                                } else {
+                                    Rectangle()
+                                        .fill(Color.gray.opacity(0.2))
+                                        .frame(width: 108, height: 122)
+                                        .overlay(Text("No image").font(.caption))
+                                }
+                                
+                                Text(option.title)
+                                    .font(.body)
+                                    .foregroundColor(.black)
+                            }
+                            .hAlign(alignment: .center)
+                            .padding(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(
+                                        option.isSelected ? Color.black : Color.gray.opacity(0.3),
+                                        lineWidth: 1
+                                    )
+                                    .padding(1)
+                            )
+                            .overlay(
+                                CheckmarkView(isSelected: option.isSelected),
+                                alignment: .topTrailing
+                            )
                         }
-                        .hAlign(alignment: .center)
-                        .padding(8)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(
-                                    option.isSelected ? Color.black : Color.gray.opacity(0.3),
-                                    lineWidth: 1
-                                )
-                                .padding(1)
-                        )
-                        .overlay(
-                            CheckmarkView(isSelected: option.isSelected),
-                            alignment: .topTrailing
-                        )
                     }
                 }
             }
         }
     }
-
+    
     func continueButton(
         viewStore: ViewStoreOf<StylePreferencesDomain>
     ) -> some View {

@@ -18,6 +18,6 @@ struct PrimaryButtonModifier: ViewModifier {
             .background(isLight ? Color.white : Color.black)
             .foregroundColor(isLight ? Color.black : Color.white)
             .fontWeight(.semibold)
-            .shadow(color: Color.white, radius: 20, x: 0, y: -30)
+            .shadow(color: Color.white.opacity(style == .light ? 0 : 1), radius: 20, x: 0, y: -30)
     }
 }
