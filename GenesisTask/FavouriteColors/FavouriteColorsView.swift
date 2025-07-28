@@ -66,8 +66,7 @@ struct FavouriteColorsView: View {
 private extension FavouriteColorsView {
     var title: some View {
         Text("Choose favourite colors")
-            .font(.title)
-            .fontWeight(.medium)
+            .font(.kaiseiTokuminMedium(size: 26))
             .multilineTextAlignment(.leading)
     }
 
@@ -87,7 +86,9 @@ private extension FavouriteColorsView {
                                     .frame(width: 32, height: 32)
 
                                 Text(option.title)
-                                    .font(.footnote)
+                                    .font(
+                                        option.isSelected ? .poppinsMedium(size: 13) : .poppinsLight(size: 13)
+                                    )
                                     .foregroundColor(.black)
                             }
                             .hAlign(alignment: .center)

@@ -71,15 +71,10 @@ private extension WelcomeView {
     var title: some View {
         VStack(alignment: .leading) {
             Text("Online Personal \nStyling.")
-                .font(.title)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-
             Text("Outfits for \nEvery Woman.")
-                .font(.title)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
         }
+        .font(.kaiseiTokuminMedium(size: 32))
+        .foregroundColor(.white)
         .hAlign(alignment: .leading)
     }
 

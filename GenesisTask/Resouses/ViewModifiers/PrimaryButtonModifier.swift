@@ -17,7 +17,7 @@ struct PrimaryButtonModifier: ViewModifier {
             .padding()
             .background(isLight ? Color.white : Color.black)
             .foregroundColor(isLight ? Color.black : Color.white)
-            .fontWeight(.semibold)
+            .font(.kaiseiTokuminRegular(size: 14))
             .shadow(color: Color.white.opacity(style == .light ? 0 : 1), radius: 20, x: 0, y: -30)
     }
 }

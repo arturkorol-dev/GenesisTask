@@ -78,11 +78,10 @@ private extension LifestyleAndInterestsView {
     var title: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("What’d you like our stylists to focus on?")
-                .font(.title)
-                .fontWeight(.medium)
+                .font(.kaiseiTokuminMedium(size: 26))
 
             Text("We offer services via live-chat mode.")
-                .font(.subheadline)
+                .font(.poppinsLight(size: 13))
                 .foregroundColor(.secondary)
         }
     }
@@ -100,10 +99,10 @@ private extension LifestyleAndInterestsView {
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(option.title)
-                                        .font(.headline)
+                                        .font(.poppinsMedium(size: 13))
                                         .foregroundColor(.black)
                                     Text(option.subtitle)
-                                        .font(.subheadline)
+                                        .font(.poppinsLight(size: 14))
                                         .foregroundColor(.gray)
                                 }
                                 Spacer()

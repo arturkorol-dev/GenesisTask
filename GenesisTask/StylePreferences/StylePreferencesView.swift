@@ -78,8 +78,7 @@ struct StylePreferencesView: View {
 private extension StylePreferencesView {
     var title: some View {
         Text("Which style best represents you?")
-            .font(.title)
-            .fontWeight(.medium)
+            .font(.kaiseiTokuminMedium(size: 26))
             .multilineTextAlignment(.leading)
     }
     
@@ -104,6 +103,10 @@ private extension StylePreferencesView {
                                         ProgressView()
                                             .frame(width: 108, height: 122)
                                     }
+                                } else if let image = option.imageName {
+                                    Image(image)
+                                        .scaledToFill()
+                                        .frame(width: 108, height: 122)
                                 } else {
                                     Rectangle()
                                         .fill(Color.gray.opacity(0.2))
@@ -112,7 +115,7 @@ private extension StylePreferencesView {
                                 }
                                 
                                 Text(option.title)
-                                    .font(.body)
+                                    .font(.poppinsLight(size:13))
                                     .foregroundColor(.black)
                             }
                             .hAlign(alignment: .center)
