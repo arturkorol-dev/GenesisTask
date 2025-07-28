@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct LifestyleAndInterestsView: View {
     let store: StoreOf<LifestyleAndInterestsDomain>
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         WithViewStore(self.store, observe: { $0 }) { viewStore in
@@ -22,6 +23,7 @@ struct LifestyleAndInterestsView: View {
                     }
                 } else {
                     VStack(spacing: 24) {
+                        NavigationBar(title: "LIFESTYLE & INTERESTS")
                         title
                         questions(viewStore: viewStore)
                         continueButton(viewStore: viewStore)
@@ -29,9 +31,7 @@ struct LifestyleAndInterestsView: View {
                     .padding()
                 }
             }
-            .navigationTitle("LIFESTYLE & INTERESTS")
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden()
+            .toolbar(.hidden, for: .navigationBar)
             .alert(
                 "Please select at least one option.",
                 isPresented: viewStore.binding(

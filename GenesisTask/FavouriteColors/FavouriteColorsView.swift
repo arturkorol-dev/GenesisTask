@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct FavouriteColorsView: View {
     let store: StoreOf<FavouriteColorsDomain>
+    @Environment(\.dismiss) private var dismiss
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: 16),
@@ -27,6 +28,9 @@ struct FavouriteColorsView: View {
                     }
                 } else {
                     VStack(alignment: .leading, spacing: 16) {
+                        NavigationBar(title: "Style preferences") {
+                            dismiss()
+                        }
                         title
                         colors(viewStore: viewStore)
                         continueButton(viewStore: viewStore)
@@ -34,8 +38,7 @@ struct FavouriteColorsView: View {
                     .padding()
                 }
             }
-            .navigationTitle("Style preferences")
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
             .alert(
                 "Please select at least one color.",
                 isPresented: viewStore.binding(

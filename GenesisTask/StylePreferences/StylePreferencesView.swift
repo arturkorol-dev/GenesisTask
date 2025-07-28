@@ -10,7 +10,8 @@ import ComposableArchitecture
 
 struct StylePreferencesView: View {
     let store: StoreOf<StylePreferencesDomain>
-    
+    @Environment(\.dismiss) private var dismiss
+
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: 16),
         count: 2
@@ -27,6 +28,9 @@ struct StylePreferencesView: View {
                     }
                 } else {
                     VStack(alignment: .leading, spacing: 20) {
+                        NavigationBar(title: "Style preferences") {
+                            dismiss()
+                        }
                         title
                         options(viewStore: viewStore)
                         continueButton(viewStore: viewStore)
@@ -34,8 +38,7 @@ struct StylePreferencesView: View {
                     .padding()
                 }
             }
-            .navigationTitle("Style preferences")
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
             .alert(
                 "Please select one option.",
                 isPresented: viewStore.binding(
